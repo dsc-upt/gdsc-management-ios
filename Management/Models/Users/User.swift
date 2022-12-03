@@ -49,18 +49,18 @@ class UserDataModel: ObservableObject {
         }
 
         print("Fetch users")
-        isLoading = true
+
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
+
         let resource = UsersResource()
-        let request = UserAPIRequest(resource: resource)
-        let users = try await request.execute()
+        let request = APIRequest(resource: resource)
+        let users: [User]? = await request.get(resource.url)
 
         DispatchQueue.main.async {
             self.users = users ?? []
             self.isLoading = false
         }
     }
-}
-
-class UserAPIRequest: APIRequest<UsersResource> {
-
 }
