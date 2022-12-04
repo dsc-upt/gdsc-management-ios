@@ -10,22 +10,60 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    var body: some View {
-        NavigationView {
-            List {
-                NavigationLink {
-                    UsersList()
-                } label: {
-                    Text("Users")
-                }
+    @EnvironmentObject var vm: UserAuthModel
 
-                NavigationLink {
-                    ItemsList()
-                } label: {
-                    Text("Items")
-                }
-            }
+    fileprivate func SignInButton() -> Button<Text> {
+        Button(action: {
+            vm.signIn()
+        }) {
+            Text("Sign In")
         }
+    }
+
+    fileprivate func SignOutButton() -> Button<Text> {
+        Button(action: {
+            vm.signOut()
+        }) {
+            Text("Sign Out")
+        }
+    }
+
+    fileprivate func ProfilePic() -> some View {
+        AsyncImage(url: URL(string: vm.profilePicUrl))
+                .frame(width: 100, height: 100)
+    }
+
+    fileprivate func UserInfo() -> Text {
+        return Text(vm.givenName)
+    }
+
+    var body: some View {
+        VStack {
+            UserInfo()
+            ProfilePic()
+            if (vm.isLoggedIn) {
+                SignOutButton()
+                NavigationView {
+                    List {
+                        NavigationLink {
+                            UsersList()
+                        } label: {
+                            Text("Users")
+                        }
+
+                        NavigationLink {
+                            ItemsList()
+                        } label: {
+                            Text("Items")
+                        }
+                    }
+                }
+            } else {
+                SignInButton()
+            }
+            Text(vm.errorMessage)
+        }
+                .navigationTitle("Login")
     }
 }
 

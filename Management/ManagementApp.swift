@@ -11,11 +11,16 @@ import SwiftUI
 @main
 struct ManagementApp: App {
     let persistenceController = PersistenceController.shared
+    @StateObject var userAuth: UserAuthModel = UserAuthModel()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            NavigationView {
+                ContentView()
+            }
+                    .environmentObject(userAuth)
+                    .navigationViewStyle(.stack)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
