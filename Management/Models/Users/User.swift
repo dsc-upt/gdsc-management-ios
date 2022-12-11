@@ -31,11 +31,11 @@ struct UsersResource: APIResource {
     typealias ModelType = User
     var id: String?
 
-    var methodPath: String {
+    var modelPath: String {
         guard let id = id else {
-            return "/users"
+            return "users"
         }
-        return "/users/\(id)"
+        return "users/\(id)"
     }
 }
 
@@ -57,6 +57,7 @@ class UserDataModel: ObservableObject {
         let resource = UsersResource()
         let request = APIRequest(resource: resource)
         let users: [User]? = await request.get(resource.url)
+        print(users)
 
         DispatchQueue.main.async {
             self.users = users ?? []

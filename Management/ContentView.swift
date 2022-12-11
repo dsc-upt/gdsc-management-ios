@@ -10,7 +10,7 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @EnvironmentObject var vm: UserAuthModel
+    @EnvironmentObject var vm: AuthData
 
     fileprivate func SignInButton() -> Button<Text> {
         Button(action: {
@@ -29,12 +29,12 @@ struct ContentView: View {
     }
 
     fileprivate func ProfilePic() -> some View {
-        AsyncImage(url: URL(string: vm.profilePicUrl))
+        AsyncImage(url: URL(string: vm.avatar))
                 .frame(width: 100, height: 100)
     }
 
     fileprivate func UserInfo() -> Text {
-        return Text(vm.givenName)
+        Text(vm.givenName)
     }
 
     var body: some View {

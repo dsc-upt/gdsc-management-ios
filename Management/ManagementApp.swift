@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct ManagementApp: App {
     let persistenceController = PersistenceController.shared
-    @StateObject var userAuth: UserAuthModel = UserAuthModel()
+    @StateObject var userAuth: AuthData = AuthData()
 
     var body: some Scene {
         WindowGroup {
