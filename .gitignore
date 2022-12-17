@@ -226,3 +226,7 @@ xcuserdata
 # End of https://www.toptal.com/developers/gitignore/api/swift,appcode,swiftpackagemanager
 
 .DS_Store
+
+.idea/deployment.xml
+
+Management/environment_variables.env
