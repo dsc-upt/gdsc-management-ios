@@ -15,29 +15,27 @@ struct ItemsList: View {
     private var items: FetchedResults<Item>
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+        List {
+            ForEach(items) { item in
+                NavigationLink {
+                    Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                } label: {
+                    Text(item.timestamp!, formatter: itemFormatter)
+                }
+            }
+                    .onDelete(perform: deleteItems)
+        }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        EditButton()
+                    }
+                    ToolbarItem {
+                        Button(action: addItem) {
+                            Label("Add Item", systemImage: "plus")
+                        }
                     }
                 }
-                        .onDelete(perform: deleteItems)
-            }
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            EditButton()
-                        }
-                        ToolbarItem {
-                            Button(action: addItem) {
-                                Label("Add Item", systemImage: "plus")
-                            }
-                        }
-                    }
-            Text("Select an item")
-        }
+        Text("Select an item")
     }
 
     private func addItem() {
@@ -58,7 +56,10 @@ struct ItemsList: View {
 
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
+            offsets.map {
+                        items[$0]
+                    }
+                    .forEach(viewContext.delete)
 
             do {
                 try viewContext.save()

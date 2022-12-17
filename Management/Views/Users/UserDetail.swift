@@ -8,15 +8,11 @@ let defaultCoverImage = "https://goodmorningimagesforlover.com/wp-content/upload
 
 struct UserDetail: View {
     var user: User
+    @State var selectedRoles: Set<IdentifiableString> = Set()
 
     var body: some View {
         ScrollView {
-            AsyncImage(url: URL(string: defaultCoverImage)) { image in
-                image.resizable().aspectRatio(contentMode: .fit)
-            } placeholder: {
-                ProgressView()
-            }
-                    .frame(height: 200).clipped()
+            CoverImage(url: defaultCoverImage)
 
             AsyncImage(url: URL(string: user.avatar ?? defaultAvatar)) { image in
                 CircleImage(image: image).offset(y: -130).padding(.bottom, -130)
@@ -45,7 +41,15 @@ struct UserDetail: View {
                 Text(user.created)
             }
                     .padding()
+
+            NavigationLink {
+                ItemsList()
+            } label: {
+                Text("Items")
+            }
+            UserRoles(roles: user.roles, selected: selectedRoles)
         }
+                .navigationViewStyle(.stack)
                 .navigationTitle(user.firstName + " " + user.lastName).navigationBarTitleDisplayMode(.inline)
     }
 }

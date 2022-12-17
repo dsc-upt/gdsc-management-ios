@@ -14,4 +14,5 @@ struct User: Identifiable, Decodable {
     var firstName: String
     var lastName: String
     var avatar: String?
+    var roles: [String]
 }

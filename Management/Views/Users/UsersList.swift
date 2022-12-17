@@ -8,7 +8,6 @@ import SwiftUI
 struct UsersList: View {
     @StateObject private var modelData = UserDataModel()
     @State private var showFavoritesOnly = false
-    @State private var hideBackButton = false
 
     var filteredUsers: [User] {
         (modelData.users ?? []).filter { user in
@@ -17,38 +16,31 @@ struct UsersList: View {
     }
 
     var body: some View {
-        NavigationView {
-            let userList = List {
-                Toggle(isOn: $showFavoritesOnly) {
-                    Text("Favorites only")
-                }
-
-                ForEach(filteredUsers) { user in
-                    NavigationLink {
-                        UserDetail(user: user).onAppear {
-                            hideBackButton = true
-                        }.onDisappear {
-                            hideBackButton = false
-                        }
-                    } label: {
-                        UserRow(user: user)
-                    }
-                }
+        let userList = List {
+            Toggle(isOn: $showFavoritesOnly) {
+                Text("Admins only")
             }
 
-            userList.navigationTitle("Users").task {
-                guard modelData.users == nil else {
-                    print("return")
-                    return
-                }
-                do {
-                    try await modelData.fetchUsers()
-                } catch {
-                    print(error)
+            ForEach(filteredUsers) { user in
+                NavigationLink {
+                    UserDetail(user: user)
+                } label: {
+                    UserRow(user: user)
                 }
             }
         }
-                .navigationBarBackButtonHidden(hideBackButton)
+
+        userList.navigationTitle("Users").task {
+            guard modelData.users == nil else {
+                print("return")
+                return
+            }
+            do {
+                try await modelData.fetchUsers()
+            } catch {
+                print(error)
+            }
+        }
     }
 }
 

@@ -58,6 +58,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                        .navigationViewStyle(.stack)
             } else {
                 SignInButton()
             }
