@@ -9,7 +9,7 @@ class AuthData: ObservableObject {
     @Published var givenName: String = ""
     @Published var avatar: String = ""
     @Published var isLoggedIn: Bool = false
-    @Published var errorMessage: String = ""
+    @Published var errorMessage: String?
 
     init() {
         check()
@@ -55,28 +55,21 @@ class AuthData: ObservableObject {
             return
         }
 
-        let signInConfig = GIDConfiguration.init(clientID: "CLIENT_ID")
+        let signInConfig = GIDConfiguration.init(clientID: Env.googleClientId)
         GIDSignIn.sharedInstance.signIn(
                 with: signInConfig,
                 presenting: presentingViewController,
                 callback: { user, error in
                     if let error = error {
-                        self.errorMessage = "error: \(error.localizedDescription)"
+                        self.errorMessage = "Error: \(error.localizedDescription)"
                         self.signOut()
                         return
                     }
 
-                    let resource = TokensResource()
-                    let request = APIRequest(resource: resource)
-                    var postRequest = request.makePostRequest(resource.url)
-                    postRequest.addValue(user?.authentication.idToken ?? "", forHTTPHeaderField: "token")
-                    request.execute(postRequest) { (tokens: Tokens?) in
-                        guard let tokens = tokens else {
-                            return
-                        }
-                        TokenService.accessToken = tokens.accessToken
-                        TokenService.refreshToken = tokens.refreshToken
-                    }
+                    self.errorMessage = nil
+
+                    print("Id token: ", user?.authentication.idToken as Any)
+                    TokensApi.shared.authenticate(token: user?.authentication.idToken ?? "")
                     self.checkStatus()
                 }
         )
@@ -89,10 +82,22 @@ struct Tokens: Codable {
     let refreshToken: String
 }
 
-struct TokensResource: APIResource {
+class TokensApi: Api {
     typealias ModelType = Tokens
+    var modelPath: String = "/api/auth/authenticate/"
 
-    var modelPath: String {
-        "auth/authenticate"
+    static var shared = TokensApi()
+
+    func authenticate(token: String) {
+        let urlComponents = createUrlComponents();
+        var request = HttpClient.shared.makePostRequest(urlComponents.url!)
+        request.addValue(token, forHTTPHeaderField: "token")
+        HttpClient.shared.execute(request) { (tokens: Tokens?) in
+            guard let tokens = tokens else {
+                return
+            }
+            TokenService.accessToken = tokens.accessToken
+            TokenService.refreshToken = tokens.refreshToken
+        }
     }
 }

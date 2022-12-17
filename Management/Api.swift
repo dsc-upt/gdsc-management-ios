@@ -7,7 +7,6 @@ import SwiftUI
 import GoogleSignIn
 
 protocol Http {
-    associatedtype ModelType
     func get<T: Decodable>(_ url: URL) async -> T?
     func post<T: Decodable>(_ url: URL, body payload: Encodable) async -> T?
     func execute<T: Decodable>(_ request: URLRequest, withCompletion completion: @escaping (T?) -> Void) -> Void
@@ -51,7 +50,7 @@ extension Http {
     func handleResult<T: Decodable>(_ result: (Data?, URLResponse?)?) -> T? {
         guard let (_, _response) = result, let httpResponse = _response as? HTTPURLResponse
         else {
-            print("Error: Invalid response:", result)
+            print("Error: Invalid response:", result as Any)
             return nil
         }
 
@@ -74,7 +73,7 @@ extension Http {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         if let accessToken = TokenService.accessToken {
-            print(accessToken)
+            print("Access token: ", accessToken)
             request.setValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")
         }
 
@@ -104,24 +103,33 @@ extension Http {
     }
 }
 
-protocol APIResource {
+class HttpClient: Http {
+    static let shared = HttpClient()
+}
+
+protocol Api {
     associatedtype ModelType: Decodable
-    var modelPath: String { get }
+    var modelPath: String { get set }
+
+    func get() async -> [ModelType]?
+    func get(id: String) async -> ModelType?
+//    func post(_ payload: Encodable) async -> ModelType?
 }
 
-extension APIResource {
-    var url: URL {
-        var components = URLComponents(string: "http://localhost:5286")!
-        components.path = "/api/" + modelPath
-        return components.url!
+extension Api {
+    func createUrlComponents(id: String = "") -> URLComponents {
+        var urlComponents = URLComponents(string: Env.apiUrl)!
+        urlComponents.path = modelPath + id
+        return urlComponents
     }
-}
 
-class APIRequest<Resource: APIResource>: Http {
-    typealias ModelType = Resource.ModelType
-    let resource: Resource
+    func get() async -> [ModelType]? {
+        let urlComponents = createUrlComponents();
+        return await HttpClient.shared.get(urlComponents.url!)
+    }
 
-    init(resource: Resource) {
-        self.resource = resource
+    func get(id: String) async -> ModelType? {
+        let urlComponents = createUrlComponents(id: id);
+        return await HttpClient.shared.get(urlComponents.url!)
     }
 }

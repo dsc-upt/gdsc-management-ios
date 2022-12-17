@@ -61,7 +61,9 @@ struct ContentView: View {
             } else {
                 SignInButton()
             }
-            Text(vm.errorMessage)
+            if let errorMessage = vm.errorMessage {
+                Text(errorMessage)
+            }
         }
                 .navigationTitle("Login")
     }
