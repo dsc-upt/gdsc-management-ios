@@ -14,11 +14,7 @@ struct UserDetail: View {
         ScrollView {
             CoverImage(url: defaultCoverImage)
 
-            AsyncImage(url: URL(string: user.avatar ?? defaultAvatar)) { image in
-                CircleImage(image: image).offset(y: -130).padding(.bottom, -130)
-            } placeholder: {
-                ProgressView()
-            }
+            AsyncCircleImage(user.avatar ?? defaultAvatar).offset(y: -130).padding(.bottom, -130)
 
             VStack(alignment: .leading) {
                 Text(user.firstName + " " + user.lastName)

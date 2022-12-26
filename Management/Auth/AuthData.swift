@@ -12,21 +12,24 @@ class AuthData: ObservableObject {
     @Published var errorMessage: String?
 
     init() {
-        check()
+        restorePreviousSignIn()
     }
 
-    func checkStatus() {
-        if (GIDSignIn.sharedInstance.currentUser != nil) {
-            let user = GIDSignIn.sharedInstance.currentUser!
-            guard let profile = user.profile else {
-                return
-            }
-            givenName = profile.givenName ?? "Stranger"
-            avatar = profile.imageURL(withDimension: 100)!.absoluteString
-            isLoggedIn = true
-        } else {
-            signOut()
+    private func checkGoogleCurrentUser() {
+        guard let user = GIDSignIn.sharedInstance.currentUser else {
+            return signOut()
         }
+
+        guard let profile = user.profile else {
+            givenName = "Stranger"
+            avatar = defaultAvatar
+            isLoggedIn = true
+            return
+        }
+
+        givenName = profile.givenName ?? "Stranger"
+        avatar = profile.imageURL(withDimension: 100)!.absoluteString
+        isLoggedIn = true
     }
 
     func signOut() {
@@ -34,10 +37,10 @@ class AuthData: ObservableObject {
         TokenService.clear()
         isLoggedIn = false
         givenName = "Not Logged In"
-        avatar = ""
+        avatar = defaultAvatar
     }
 
-    func check() {
+    private func restorePreviousSignIn() {
         GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
             if let error = error {
                 self.errorMessage = "error: \(error.localizedDescription)"
@@ -45,12 +48,11 @@ class AuthData: ObservableObject {
                 return
             }
 
-            self.checkStatus()
+            self.checkGoogleCurrentUser()
         }
     }
 
     func signIn() {
-
         guard let presentingViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController else {
             return
         }
@@ -70,34 +72,8 @@ class AuthData: ObservableObject {
 
                     print("Id token: ", user?.authentication.idToken as Any)
                     TokensApi.shared.authenticate(token: user?.authentication.idToken ?? "")
-                    self.checkStatus()
+                    self.checkGoogleCurrentUser()
                 }
         )
-    }
-}
-
-
-struct Tokens: Codable {
-    let accessToken: String
-    let refreshToken: String
-}
-
-class TokensApi: Api {
-    typealias ModelType = Tokens
-    var modelPath: String = "/api/auth/authenticate/"
-
-    static var shared = TokensApi()
-
-    func authenticate(token: String) {
-        let urlComponents = createUrlComponents();
-        var request = HttpClient.shared.makePostRequest(urlComponents.url!)
-        request.addValue(token, forHTTPHeaderField: "token")
-        HttpClient.shared.execute(request) { (tokens: Tokens?) in
-            guard let tokens = tokens else {
-                return
-            }
-            TokenService.accessToken = tokens.accessToken
-            TokenService.refreshToken = tokens.refreshToken
-        }
     }
 }

@@ -10,68 +10,47 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @EnvironmentObject var vm: AuthData
-
-    fileprivate func SignInButton() -> Button<Text> {
-        Button(action: {
-            vm.signIn()
-        }) {
-            Text("Sign In")
-        }
-    }
-
-    fileprivate func SignOutButton() -> Button<Text> {
-        Button(action: {
-            vm.signOut()
-        }) {
-            Text("Sign Out")
-        }
-    }
-
-    fileprivate func ProfilePic() -> some View {
-        AsyncImage(url: URL(string: vm.avatar))
-                .frame(width: 100, height: 100)
-    }
-
-    fileprivate func UserInfo() -> Text {
-        Text(vm.givenName)
-    }
+    @EnvironmentObject var authData: AuthData
 
     var body: some View {
-        VStack {
-            UserInfo()
-            ProfilePic()
-            if (vm.isLoggedIn) {
-                SignOutButton()
-                NavigationView {
-                    List {
-                        NavigationLink {
-                            UsersList()
-                        } label: {
-                            Text("Users")
-                        }
 
-                        NavigationLink {
-                            ItemsList()
-                        } label: {
-                            Text("Items")
-                        }
+        VStack {
+            TopBar()
+            NavigationView {
+                List {
+                    NavigationLink {
+                        UsersList()
+                    } label: {
+                        Text("Users")
+                    }
+
+                    NavigationLink {
+                        ItemsList()
+                    } label: {
+                        Text("Items")
                     }
                 }
-                        .navigationViewStyle(.stack)
-            } else {
-                SignInButton()
             }
-            if let errorMessage = vm.errorMessage {
+                    .navigationViewStyle(.stack)
+            if let errorMessage = authData.errorMessage {
                 Text(errorMessage)
             }
         }
-                .navigationTitle("Login")
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+class ContentView_Previews: PreviewProvider {
+    static var authData = AuthData()
+
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext).environmentObject(authData)
     }
+
+    #if DEBUG
+    @objc class func injected() {
+        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        windowScene?.windows.first?.rootViewController =
+                UIHostingController(rootView: ContentView())
+    }
+    #endif
 }

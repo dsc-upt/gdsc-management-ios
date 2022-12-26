@@ -11,16 +11,32 @@ import SwiftUI
 @main
 struct ManagementApp: App {
     let persistenceController = PersistenceController.shared
-    @StateObject var userAuth: AuthData = AuthData()
+    @StateObject var userAuth = AuthData()
+
+    init() {
+        #if DEBUG
+        var injectionBundlePath = "/Applications/InjectionIII.app/Contents/Resources"
+        #if targetEnvironment(macCatalyst)
+        injectionBundlePath = "\(injectionBundlePath)/macOSInjection.bundle"
+        #elseif os(iOS)
+        injectionBundlePath = "\(injectionBundlePath)/iOSInjection.bundle"
+        #endif
+        Bundle(path: injectionBundlePath)?.load()
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                ContentView()
+            if (!userAuth.isLoggedIn) {
+                Login()
+            } else {
+                NavigationView {
+                    ContentView()
+                }
+                        .environmentObject(userAuth)
+                        .navigationViewStyle(.stack)
+                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
             }
-                    .environmentObject(userAuth)
-                    .navigationViewStyle(.stack)
-                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }

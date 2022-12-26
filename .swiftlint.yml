@@ -1,0 +1,7 @@
+opt_in_rules:
+  - array_init
+  - attributes
+  - capture_variable
+  - closure_spacing
+  - closure_end_indentation
+  - collection_alignment

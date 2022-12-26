@@ -9,6 +9,11 @@ enum UserDefaultsKeys: String {
     case refreshToken
 }
 
+struct Tokens: Codable {
+    let accessToken: String
+    let refreshToken: String
+}
+
 class TokenService {
     static var accessToken: String? {
         get {
