@@ -14,7 +14,7 @@ struct SquareImage: View {
     init(_ image: Image, width: CGFloat? = nil, height: CGFloat? = nil) {
         self.image = image
         self.width = width
-        self.height = height
+        self.height = height ?? width
     }
 
     var body: some View {

@@ -26,14 +26,14 @@ struct Login: View {
             singInButtonLabel
         }
 
-        let yellowButton = button.background(Color.yellow)
-        return yellowButton.foregroundColor(.white).cornerRadius(5.0)
+        let yellowButton = button.padding().background(Color.yellow)
+        return yellowButton.foregroundColor(.blue).cornerRadius(5.0)
     }
 
     var body: some View {
         VStack {
             AsyncSquareImage(logo).padding(40)
-            signInButton.padding()
+            signInButton
         }
     }
 }

@@ -43,14 +43,7 @@ struct MultiSelector<LabelView: View, Selectable: Identifiable & Hashable>: View
 }
 
 struct MultiSelector_Previews: PreviewProvider {
-    struct IdentifiableString: Identifiable, Hashable {
-        let string: String
-        var id: String {
-            string
-        }
-    }
-
-    @State static var selected: Set<IdentifiableString> = Set(["A", "C"].map {
+    @State static var selected = Set(["A", "C"].map {
         IdentifiableString(string: $0)
     })
 

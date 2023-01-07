@@ -21,3 +21,18 @@ struct UserRoles: View {
         )
     }
 }
+
+struct UserRole_Previews: PreviewProvider {
+    static let roles = ["admin", "user"]
+    static let selected: Set<IdentifiableString> = [
+        IdentifiableString(string: "admin"),
+    ]
+
+    static var previews: some View {
+        NavigationView {
+            Form {
+                UserRoles(roles: roles, selected: selected)
+            }
+        }
+    }
+}
